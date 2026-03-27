@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
 
     if (array_key_exists('name', $data) && array_key_exists('message', $data)) {
-        $id = $mail->createMail($data['name'], $data['message']);
+        $id = $mail->createMail($data['name'], $data['message'], $user->userId);
         $page->item(array("id" => $id));
     } else {
         $page->badRequest();
@@ -41,7 +41,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    if ($user->role === 'admin') {
     $page->item($mail->listMail());
+} else {
+    $page->item($mail->listMailByUser($user->userId));
+}
 
 } else {
     $page->badRequest();
