@@ -1,32 +1,41 @@
 <?php
-namespace Application;
+
+namespace Classes\Application;
+
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
-class Verifier
-{
-    public $userId;
-    public $role;
+class Verifier {
 
-    public function decode($jwt) 
-    {   
-        if (!empty($jwt)) {
-            // Trim whitespace from token string.
-            $jwt = trim($jwt);
+    private $secret = "tjay_secret_12345";
 
-            // Remove the 'Bearer ' prefix, if present, in the event we're getting an Authorization header that's using it.
-            if (substr($jwt, 0, 7) === 'Bearer ') {
-                $jwt = substr($jwt, 7);
-            }
+    public function verifyToken() {
 
-            // Attempt to decode the token:
-            try {
-                $token = JWT::decode($jwt, new Key("SET_A_RANDOM_STRING_FOR_FULL_MARKS", 'HS256'));
-                $this->userId = $token->userId;
-                $this->role = $token->role;
-            } catch (\Throwable $e) {
-                // The token wasn't valid.
-            }
+        // get headers
+        $headers = getallheaders();
+
+        // check if Authorization header exists
+        if (!isset($headers['Authorization'])) {
+            http_response_code(401);
+            echo json_encode(["error" => "Missing token"]);
+            exit;
+        }
+
+        // extract token (Bearer TOKEN)
+        $authHeader = $headers['Authorization'];
+        $token = str_replace("Bearer ", "", $authHeader);
+
+        try {
+            // decode JWT
+            $decoded = JWT::decode($token, new Key($this->secret, 'HS256'));
+
+            // return decoded data
+            return $decoded;
+
+        } catch (\Exception $e) {
+            http_response_code(401);
+            echo json_encode(["error" => "Invalid token"]);
+            exit;
         }
     }
 }
