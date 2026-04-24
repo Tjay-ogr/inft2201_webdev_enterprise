@@ -2,6 +2,5 @@
 // Returns true if mail.userId === user.userId.
 
 module.exports = function ownsResource(user, mail) {
-  // TODO: implement
-  return false;
+  return Number(user.userId) === Number(mail.userId);
 };

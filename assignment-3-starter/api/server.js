@@ -1,5 +1,6 @@
 const express = require("express");
 const requestLogger = require("./middleware/requestLogger");
+const rateLimiter = require("./middleware/rateLimiter"); // <-- ADD THIS
 const errorHandler = require("./middleware/errorHandler");
 
 const authRoutes = require("./routes/auth");
@@ -10,8 +11,11 @@ const app = express();
 
 app.use(express.json());
 
-// Attach request logger early so all requests get an ID and log entry.
+// Attach request logger early
 app.use(requestLogger);
+
+//ADD RATE LIMITER HERE (before routes)
+app.use(rateLimiter);
 
 // Mount routes
 app.use("/status", statusRoutes);

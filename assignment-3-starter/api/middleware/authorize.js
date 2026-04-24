@@ -1,12 +1,17 @@
-// Generic authorization middleware that accepts a policy function.
-// The policy function will receive (user, resource) and must return true/false.
-
-module.exports = function authorize(policy) {
+module.exports = (policy) => {
   return (req, res, next) => {
-    // TODO: implement:
-    // - Read req.user and req.mail (or other resource, depending on route).
-    // - If policy(user, resource) === true, call next().
-    // - Otherwise, create an appropriate "Forbidden" error and pass to next(err).
-    next(new Error("authorize middleware not implemented yet"));
+    const user = req.user;
+    const resource = req.mail;
+
+    //safety check
+    if (!user || !resource) {
+      return res.status(500).json({ error: "Authorization context missing" });
+    }
+
+    if (!policy(user, resource)) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    next();
   };
 };

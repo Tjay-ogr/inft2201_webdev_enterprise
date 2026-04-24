@@ -7,12 +7,10 @@ const router = express.Router();
 router.post("/login", (req, res) => {
   const { username, password } = req.body;
 
-  // check input
   if (!username || !password) {
     return res.status(400).json({ error: "Missing credentials" });
   }
 
-  // find user
   const user = users.find(
     (u) => u.username === username && u.password === password
   );
@@ -21,13 +19,17 @@ router.post("/login", (req, res) => {
     return res.status(401).json({ error: "Invalid credentials" });
   }
 
-  // create token
+  // 🔥 require secret (no fallback)
+  if (!process.env.JWT_SECRET) {
+    return res.status(500).json({ error: "JWT secret not configured" });
+  }
+
   const token = jwt.sign(
     {
       userId: user.id,
       role: user.role,
     },
-    process.env.JWT_SECRET || "fallback_secret",
+    process.env.JWT_SECRET,
     { expiresIn: "1h" }
   );
 

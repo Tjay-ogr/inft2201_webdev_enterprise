@@ -13,11 +13,13 @@ module.exports = (req, res, next) => {
     return res.status(401).json({ error: "Invalid token format" });
   }
 
+  // require secret
+  if (!process.env.JWT_SECRET) {
+    return res.status(500).json({ error: "JWT secret not configured" });
+  }
+
   try {
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || "fallback_secret"
-    );
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     req.user = decoded;
 
