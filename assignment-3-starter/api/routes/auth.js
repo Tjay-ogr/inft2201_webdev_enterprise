@@ -1,45 +1,37 @@
-import express from "express";
-import jwt from "jsonwebtoken";
-import users from "../data/users.js";
+const express = require("express");
+const jwt = require("jsonwebtoken");
+const users = require("../data/users.js");
 
 const router = express.Router();
 
-router.post("/login", (req, res, next) => {
+router.post("/login", (req, res) => {
   const { username, password } = req.body;
 
-  // check missing
+  // check input
   if (!username || !password) {
-    return next({
-      statusCode: 400,
-      error: "BadRequest",
-      message: "Username and password required"
-    });
+    return res.status(400).json({ error: "Missing credentials" });
   }
 
   // find user
   const user = users.find(
-    u => u.username === username && u.password === password
+    (u) => u.username === username && u.password === password
   );
 
   if (!user) {
-    return next({
-      statusCode: 401,
-      error: "Unauthorized",
-      message: "Invalid credentials"
-    });
+    return res.status(401).json({ error: "Invalid credentials" });
   }
 
   // create token
   const token = jwt.sign(
     {
       userId: user.id,
-      role: user.role
+      role: user.role,
     },
-    process.env.JWT_SECRET,
+    process.env.JWT_SECRET || "fallback_secret",
     { expiresIn: "1h" }
   );
 
   res.json({ token });
 });
 
-export default router;
+module.exports = router;
