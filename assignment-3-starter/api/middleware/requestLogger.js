@@ -5,7 +5,7 @@ module.exports = (req, res, next) => {
 
   req.requestId = requestId;
 
-  console.log(`[${requestId}] ${req.method} ${req.url}`);
+  console.log(`REQUEST ${requestId} ${req.method} ${req.url}`);
 
   next();
 };

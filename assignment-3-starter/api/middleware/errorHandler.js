@@ -1,6 +1,6 @@
 module.exports = (err, req, res, next) => {
   //log error for debugging
-  console.error(err);
+  console.error(`Unhandled error for request ${req.requestId}`, err);
 
   if (err.statusCode === 429 && err.retryAfter) {
     res.set("Retry-After", err.retryAfter.toString());
